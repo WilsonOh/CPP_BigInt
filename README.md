@@ -49,7 +49,7 @@ The following code declares and initializes a `BigInt` object:
 ```cpp
 auto a = 12345_bn;
 ```
-All the appropriate operators are overloaded for `BigInt`, so you can use it like you would for a `int`.<br>
+All the appropriate operators are overloaded for `BigInt`, so you can use it like you would for an `int`.<br>
 Negative values are also supported, and the sign of a `BigInt` can be flipped by calling the `negate` method, which returns a `BigInt` with a flipped sign.
 
 ## Examples
