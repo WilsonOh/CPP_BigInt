@@ -17,6 +17,6 @@ BigInt fib(int n) {
 
 int main(void) {
   auto a = "8005"_bn;
-  auto b = "35"_bn;
-  std::cout << a / b << '\n';
+  auto b = "-35"_bn;
+  std::cout << a + b << '\n';
 }

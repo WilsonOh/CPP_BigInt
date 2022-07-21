@@ -1,6 +1,7 @@
 #include <BigInt.hpp>
 #include <algorithm> // std::find_if
 #include <cmath>     // std::abs
+#include <string_view>
 
 BigInt::BigInt() : _val("0"), _negative(false) {}
 
@@ -17,7 +18,8 @@ BigInt::BigInt(const std::string &val) {
 BigInt::BigInt(const std::string &val, bool negative)
     : _val(val), _negative(negative) {}
 
-BigInt::BigInt(const int64_t &val) : _val(std::to_string(val)) {}
+BigInt::BigInt(const int64_t &val)
+    : _val(std::to_string(val)), _negative(val < 0) {}
 
 BigInt BigInt::negate() const { return {_val, !_negative}; }
 
@@ -32,7 +34,7 @@ BigInt BigInt::operator+(const BigInt &bn) const {
     return (this->negate() - bn).negate();
   }
   std::string ret;
-  const std::string &other =
+  std::string_view other =
       this->_val.length() > bn._val.length() ? bn._val : this->_val;
   if (this->_val.length() > bn._val.length()) {
     ret.reserve(this->_val.length() + 1);
@@ -73,7 +75,7 @@ BigInt BigInt::operator+(const BigInt &bn) const {
     ++it1;
   }
   if (carry) {
-    ret.insert(0, 1, '1');
+    ret.insert(ret.begin(), '1');
   }
   return {ret};
 }
@@ -98,7 +100,7 @@ BigInt BigInt::operator-(const BigInt &bn) const {
     return (*this + bn.negate());
   }
   std::string ret = this->_val;
-  const std::string &other = bn._val;
+  std::string_view other = bn._val;
   auto it1 = ret.rbegin();
   auto it2 = other.crbegin();
   auto it1_end = ret.rend();
@@ -131,7 +133,7 @@ BigInt BigInt::operator-(const BigInt &bn) const {
       carry = 0;
     }
     if (it1 == it1_end) {
-      ret.insert(0, 1, curr + '0');
+      ret.insert(ret.begin(), static_cast<char>(curr + '0'));
       continue;
     }
     *it1 = curr + '0';
@@ -238,7 +240,8 @@ BigInt BigInt::operator*(const BigInt &other) const {
   for (BigInt i = 0_bn; i < b; ++i) {
     ret += *this;
   }
-  ret._negative = this->_negative || other._negative;
+  ret._negative = !(this->_negative && other._negative) &&
+                  (this->_negative || other._negative);
   return ret;
 }
 
@@ -253,13 +256,21 @@ BigInt BigInt::operator/(const BigInt &other) const {
       ++quotient;
     curr -= divisor;
   }
-  quotient._negative = this->_negative || other._negative;
+  quotient._negative = !(this->_negative && other._negative) &&
+                       (this->_negative || other._negative);
   return quotient;
 }
 
 BigInt BigInt::operator%(const BigInt &other) const {
-  BigInt tmp = *this / other;
-  return *this - (tmp * other);
+  BigInt divisor = other;
+  divisor._negative = false;
+  BigInt quotient = *this / other;
+  quotient._negative = false;
+  BigInt n = *this;
+  n._negative = false;
+  BigInt ret = n - (quotient * divisor);
+  ret._negative = false;
+  return ret;
 }
 
 BigInt &BigInt::operator%=(const BigInt &other) {
