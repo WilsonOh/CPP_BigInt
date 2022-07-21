@@ -231,15 +231,28 @@ BigInt &BigInt::operator*=(const BigInt &other) {
   return *this;
 }
 
-BigInt BigInt::operator*(const BigInt &other) const {
+BigInt mult_helper(const BigInt &a, const BigInt &b) {
   auto ret = 0_bn;
+  int idx = a._val.length() - 1;
+  for (const char &c : a._val) {
+    BigInt tmp = 0_bn;
+    for (int i = 0; i < (c - '0'); ++i) {
+      tmp += b;
+    }
+    tmp._val.append(idx, '0');
+    idx--;
+    ret += tmp;
+  }
+  return ret;
+}
+
+BigInt BigInt::operator*(const BigInt &other) const {
   BigInt a = *this;
   a._negative = false;
   BigInt b = other;
   b._negative = false;
-  for (BigInt i = 0_bn; i < b; ++i) {
-    ret += *this;
-  }
+  auto ret =
+      a._val.length() < b._val.length() ? mult_helper(a, b) : mult_helper(b, a);
   ret._negative = !(this->_negative && other._negative) &&
                   (this->_negative || other._negative);
   return ret;

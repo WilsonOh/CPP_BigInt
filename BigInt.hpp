@@ -8,10 +8,12 @@
 #include <string>
 
 class BigInt {
-public:
   std::string _val;
   bool _negative;
 
+  friend BigInt mult_helper(const BigInt &a, const BigInt &b);
+
+public:
   BigInt();
   BigInt(const std::string &val);
   BigInt(const std::string &val, bool negative);
